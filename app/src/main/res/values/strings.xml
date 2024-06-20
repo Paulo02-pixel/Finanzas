@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Finanzas</string>
+    <string name="fab_content_description">Scan QR Code</string>
+</resources>
