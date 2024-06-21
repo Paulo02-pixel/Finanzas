@@ -4,17 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.finanzas.Adapter.CartAdapter;
-import com.example.finanzas.Helper.ChangeNumberItemsListener;
 import com.example.finanzas.Helper.ManagmentCart;
-import com.example.finanzas.R;
 import com.example.finanzas.databinding.ActivityCartBinding;
 
 public class MainActivityCart extends AppCompatActivity {

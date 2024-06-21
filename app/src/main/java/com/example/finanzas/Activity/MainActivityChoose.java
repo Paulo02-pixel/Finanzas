@@ -27,6 +27,7 @@ public class MainActivityChoose extends AppCompatActivity {
 
         backMainActivity(nombre);
         goToMainActivityCart(nombre);
+        goToMainActivityCredit(nombre);
     }
 
     private void goToMainActivityCart(String nombre) {
@@ -42,6 +43,15 @@ public class MainActivityChoose extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.backBtn2);
         imageView.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivityChoose.this, MainActivity.class);
+            intent.putExtra("nombre", nombre);
+            startActivity(intent);
+        });
+    }
+
+    private void goToMainActivityCredit(String nombre){
+        Button button = findViewById(R.id.button_signup);
+        button.setOnClickListener(v->{
+            Intent intent = new Intent(MainActivityChoose.this, MainActivityCredit.class);
             intent.putExtra("nombre", nombre);
             startActivity(intent);
         });
