@@ -19,7 +19,7 @@ public class MainActivityCredit extends AppCompatActivity {
 
     private SeekBar seekBarInterestRate, seekBarPeriods;
     private TextView textViewInterestRate, textViewPeriods, textViewCreditResult;
-    private RadioGroup radioGroupRateType;
+    private RadioGroup radioGroupRateType, radioGroupMethodType;
     TextView totalFeeText;
     private ManagmentCart managmentCart;
 
@@ -40,6 +40,7 @@ public class MainActivityCredit extends AppCompatActivity {
         textViewPeriods = findViewById(R.id.textViewPeriods);
         textViewCreditResult = findViewById(R.id.textViewCreditResult);
         radioGroupRateType = findViewById(R.id.radioGroupRateType);
+        radioGroupMethodType = findViewById(R.id.radioGroupMethodType);
 
         seekBarInterestRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -75,29 +76,60 @@ public class MainActivityCredit extends AppCompatActivity {
 
     }
     private void calculateCredit(double itemTotal) {
+        //obtener tasa y periodos:
         double interestRate = 0.5 + (seekBarInterestRate.getProgress() / 10.0);
         int periods = 1 + seekBarPeriods.getProgress();
 
-        boolean isNominal = radioGroupRateType.getCheckedRadioButtonId() == R.id.radioNominal;
+        //convertir la tasa a efectiva:
+        if (radioGroupRateType.getCheckedRadioButtonId() == R.id.radioNominal){
+            interestRate = 100*(Math.pow((1+((interestRate/100)/360)),360)-1);
+        }
 
-        //FORMULA REAL
+        //convertir la tasa efectiva a mensual
         double tasa = 100*(Math.pow(1+(interestRate/100),(30.0/360.0))-1);
-        StringBuilder summary = new StringBuilder();
+
         double[] cuotas = new double[periods];
         double saldo = itemTotal;
-        double intereses, cuota, amortizacion;
+        double intereses, cuota, amortizacion = 0;
+        StringBuilder summary = new StringBuilder();
         summary.append("Detalles del Crédito:\n\n");
-
-        for(int i = 0;i<periods;i++){
-            intereses = saldo*(tasa/100);
-            cuota = (saldo * (tasa/100))/(1 - (Math.pow(1 + (tasa/100), -periods)));
-            cuotas[i] = cuota;
-            amortizacion = cuota-intereses;
-            saldo -= amortizacion;
-
-            summary.append(String.format(Locale.getDefault(),
-                    "Periodo %d:\nIntereses: S/ %.2f\nCuota: S/ %.2f\nAmortización: S/ %.2f\nSaldo: S/ %.2f\n\n",
-                    (i + 1), intereses, cuota, amortizacion, saldo));
+        int selectedMethodId = radioGroupMethodType.getCheckedRadioButtonId();
+        if (selectedMethodId == R.id.radioMethodGerman) {
+            //MÉTODO ALEMÁN:
+            for(int i = 0;i<periods;i++){
+                intereses = saldo*(tasa/100);
+                amortizacion = saldo/(periods-(i+1)+1);
+                cuota = intereses+amortizacion;
+                cuotas[i] = cuota;
+                saldo -= amortizacion;
+                summary.append(String.format(Locale.getDefault(),
+                        "Periodo %d:\nIntereses: S/ %.2f\nCuota: S/ %.2f\nAmortización: S/ %.2f\nSaldo: S/ %.2f\n\n",
+                        (i + 1), intereses, cuota, amortizacion, saldo));
+            }
+        }else if (selectedMethodId == R.id.radioMethodFrench){
+            //MÉTODO FRANCES:
+            for(int i = 0;i<periods;i++){
+                intereses = saldo*(tasa/100);
+                cuota = (saldo * (tasa/100))/(1 - (Math.pow(1 + (tasa/100), -(periods-i))));
+                cuotas[i] = cuota;
+                amortizacion = cuota-intereses;
+                saldo -= amortizacion;
+                summary.append(String.format(Locale.getDefault(),
+                "Periodo %d:\nIntereses: S/ %.2f\nCuota: S/ %.2f\nAmortización: S/ %.2f\nSaldo: S/ %.2f\n\n",
+                (i + 1), intereses, cuota, amortizacion, saldo));
+            }
+        }else{
+            //MÉTODO AMERICANO:
+            for(int i = 0;i<periods;i++){
+                intereses = saldo*(tasa/100);
+                if(i==periods-1){amortizacion=saldo;}
+                cuota = intereses+amortizacion;
+                cuotas[i] = cuota;
+                saldo = saldo- amortizacion;
+                summary.append(String.format(Locale.getDefault(),
+                "Periodo %d:\nIntereses: S/ %.2f\nCuota: S/ %.2f\nAmortización: S/ %.2f\nSaldo: S/ %.2f\n\n",
+                (i + 1), intereses, cuota, amortizacion, saldo));
+            }
         }
         textViewCreditResult.setText(summary.toString());
     }
